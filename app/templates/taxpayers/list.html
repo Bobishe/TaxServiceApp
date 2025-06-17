@@ -5,7 +5,7 @@
   <div class="input-group">
     <input type="text" name="query" class="form-control" placeholder="ИНН или ФИО" value="{{ query or '' }}">
     <button type="submit" class="btn btn-outline-primary">Поиск</button>
-    <a href="{{ url_for('web.new_taxpayer') }}" class="btn btn-primary ms-2">Добавить</a>
+    <a href="#" class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#addTaxpayerModal">Добавить</a>
   </div>
   <input type="hidden" name="page" value="1">
 </form>
@@ -67,6 +67,47 @@
   </div>
 </div>
 
+<!-- Modal for creating taxpayer -->
+<div class="modal fade" id="addTaxpayerModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="addTaxpayerForm">
+        <div class="modal-header">
+          <h5 class="modal-title">Новый налогоплательщик</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div id="add-error" class="alert alert-danger d-none"></div>
+          <div class="mb-3">
+            <label class="form-label">ИНН</label>
+            <input type="text" name="taxpayer_id" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Тип (F/U)</label>
+            <input type="text" name="type" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Фамилия</label>
+            <input type="text" name="last_name" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Имя</label>
+            <input type="text" name="first_name" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Отчество</label>
+            <input type="text" name="middle_name" class="form-control">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <button type="submit" class="btn btn-primary">Сохранить</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <script>
 async function loadTaxpayer(id) {
   const res = await fetch(`/taxpayers/${id}`);
@@ -86,5 +127,44 @@ async function loadTaxpayer(id) {
   if (data.email) lines.push(`<strong>Email:</strong> ${data.email}`);
   document.getElementById('taxpayerModalBody').innerHTML = '<p>' + lines.join('</p><p>') + '</p>';
 }
+
+document.getElementById('addTaxpayerForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const form = e.target;
+  const data = {
+    taxpayer_id: form.taxpayer_id.value.trim(),
+    type: form.type.value.trim(),
+    last_name: form.last_name.value.trim(),
+    first_name: form.first_name.value.trim(),
+    middle_name: form.middle_name.value.trim(),
+  };
+  const errorBox = document.getElementById('add-error');
+  errorBox.classList.add('d-none');
+
+  if (!/^\d{10}(?:\d{2})?$/.test(data.taxpayer_id)) {
+    errorBox.textContent = 'ИНН должен содержать 10 или 12 цифр';
+    errorBox.classList.remove('d-none');
+    return;
+  }
+  if (!['F','U'].includes(data.type)) {
+    errorBox.textContent = "Тип должен быть 'F' или 'U'";
+    errorBox.classList.remove('d-none');
+    return;
+  }
+
+  const res = await fetch('/taxpayers/', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(data)
+  });
+  if (res.ok) {
+    location.reload();
+    return;
+  }
+  let msg = 'Ошибка сохранения';
+  try { const json = await res.json(); msg = json.detail || msg; } catch {}
+  errorBox.textContent = msg;
+  errorBox.classList.remove('d-none');
+});
 </script>
 {% endblock %}
