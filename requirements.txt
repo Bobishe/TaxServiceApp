@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+SQLAlchemy>=2.0
+asyncmy
+alembic
+python-dotenv
+pydantic
+weasyprint
+openpyxl
+pandas
