@@ -15,7 +15,7 @@
           <a class="nav-link {% if active_tab=='taxpayers' %}active{% endif %}" href="{{ url_for('web.list_taxpayers') }}">Налогоплательщики</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link {% if active_tab=='declarations' %}active{% endif %}" href="{{ url_for('web.add_declaration') }}">Декларации</a>
+          <a class="nav-link {% if active_tab=='declarations' %}active{% endif %}" href="{{ url_for('web.list_declarations') }}">Декларации</a>
         </li>
         <li class="nav-item">
           <a class="nav-link {% if active_tab=='payments' %}active{% endif %}" href="#">Платежи</a>
