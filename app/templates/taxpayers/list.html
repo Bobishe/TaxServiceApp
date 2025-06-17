@@ -171,7 +171,7 @@ function toggleFields() {
 typeSelect.addEventListener('change', toggleFields);
 toggleFields();
 async function loadTaxpayer(id) {
-  const res = await fetch(`/taxpayers/${id}`);
+  const res = await fetch(`/api/taxpayers/${id}`);
   if (!res.ok) {
     document.getElementById('taxpayerModalBody').innerHTML = 'Ошибка загрузки';
     return;
@@ -243,7 +243,7 @@ document.getElementById('addTaxpayerForm').addEventListener('submit', async func
     return;
   }
 
-  const res = await fetch('/taxpayers/', {
+  const res = await fetch('/api/taxpayers/', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify(data)

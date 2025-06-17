@@ -15,6 +15,7 @@ from .payment import get_payment, create_payment
 from .debt import calculate_debts, get_total_debt
 from .inspection import get_inspection, list_inspections, create_inspection
 from .report import tax_revenue_report, debtors_list
+from .taxtype import list_tax_types
 
 __all__ = [
     "get_taxpayer",
@@ -35,4 +36,5 @@ __all__ = [
     "create_inspection",
     "tax_revenue_report",
     "debtors_list",
+    "list_tax_types",
 ]
