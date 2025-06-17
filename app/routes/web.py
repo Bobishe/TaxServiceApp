@@ -14,6 +14,7 @@ from app.crud import (
     create_declaration as crud_create_declaration,
     search_declarations,
     count_declarations,
+    list_tax_types,
     get_total_debt,
 )
 from app.schemas import TaxpayerCreate, TaxpayerUpdate, TaxDeclarationCreate
@@ -199,8 +200,18 @@ async def list_declarations(
 
 
 @router.get("/declarations/new", name="web.add_declaration")
-async def new_declaration_form(request: Request, taxpayer_id: str = ""):
-    context = {"request": request, "active_tab": "declarations"}
+async def new_declaration_form(
+    request: Request,
+    taxpayer_id: str = "",
+    db: AsyncSession = Depends(get_session),
+):
+    tax_types = await list_tax_types(db)
+
+    context = {
+        "request": request,
+        "active_tab": "declarations",
+        "tax_types": tax_types,
+    }
     if taxpayer_id:
         context["taxpayer"] = {"taxpayer_id": taxpayer_id}
     return templates.TemplateResponse("declarations/form.html", context)

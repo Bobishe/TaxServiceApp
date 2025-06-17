@@ -13,7 +13,14 @@
   {% endif %}
   <div class="mb-3">
     <label class="form-label">Вид налога</label>
-    <input type="text" name="tax_type_id" class="form-control" required>
+    <select name="tax_type_id" id="tax-type" class="form-select" required>
+      {% for t in tax_types %}
+      <option value="{{ t.tax_type_id }}" data-desc="{{ t.description }}">
+        {{ t.tax_name }}
+      </option>
+      {% endfor %}
+    </select>
+    <div class="form-text" id="tax-desc"></div>
   </div>
   <div class="mb-3">
     <label class="form-label">Период (год)</label>
@@ -29,4 +36,16 @@
   </div>
   <button type="submit" class="btn btn-primary">Создать</button>
 </form>
+<script>
+const typeSelect = document.getElementById('tax-type');
+const descEl = document.getElementById('tax-desc');
+
+function updateDesc() {
+  const opt = typeSelect.options[typeSelect.selectedIndex];
+  descEl.textContent = opt.dataset.desc || '';
+}
+
+typeSelect.addEventListener('change', updateDesc);
+updateDesc();
+</script>
 {% endblock %}
