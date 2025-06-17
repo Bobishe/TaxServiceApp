@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_session
 from app.crud import (
     search_taxpayers,
+    count_taxpayers,
     get_taxpayer,
     create_taxpayer as crud_create_taxpayer,
     update_taxpayer as crud_update_taxpayer,
@@ -20,24 +21,45 @@ router = APIRouter()
 
 @router.get("/", name="web.index")
 async def index(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    url = router.url_path_for("web.list_taxpayers")
+    return RedirectResponse(url)
 
 
 @router.get("/taxpayers", name="web.list_taxpayers")
 async def list_taxpayers(
-    request: Request, query: str = "", db: AsyncSession = Depends(get_session)
+    request: Request,
+    query: str = "",
+    page: int = 1,
+    db: AsyncSession = Depends(get_session),
 ):
-    taxpayers = await search_taxpayers(db, query) if query else []
+    limit = 20
+    offset = (page - 1) * limit
+    total = await count_taxpayers(db, query)
+    taxpayers = await search_taxpayers(db, query, limit=limit, offset=offset)
+    pages = (total + limit - 1) // limit
     return templates.TemplateResponse(
         "taxpayers/list.html",
-        {"request": request, "taxpayers": taxpayers, "query": query},
+        {
+            "request": request,
+            "taxpayers": taxpayers,
+            "query": query,
+            "page": page,
+            "pages": pages,
+            "active_tab": "taxpayers",
+        },
     )
 
 
 @router.get("/taxpayers/new", name="web.new_taxpayer")
 async def new_taxpayer_form(request: Request):
     return templates.TemplateResponse(
-        "taxpayers/form.html", {"request": request, "taxpayer": {}, "new": True}
+        "taxpayers/form.html",
+        {
+            "request": request,
+            "taxpayer": {},
+            "new": True,
+            "active_tab": "taxpayers",
+        },
     )
 
 
@@ -71,7 +93,13 @@ async def edit_taxpayer(
     if not tp:
         raise HTTPException(status_code=404, detail="Taxpayer not found")
     return templates.TemplateResponse(
-        "taxpayers/form.html", {"request": request, "taxpayer": tp, "new": False}
+        "taxpayers/form.html",
+        {
+            "request": request,
+            "taxpayer": tp,
+            "new": False,
+            "active_tab": "taxpayers",
+        },
     )
 
 
@@ -103,7 +131,11 @@ async def update_taxpayer(
 async def new_declaration_form(request: Request, taxpayer_id: str):
     return templates.TemplateResponse(
         "declarations/form.html",
-        {"request": request, "taxpayer": {"taxpayer_id": taxpayer_id}},
+        {
+            "request": request,
+            "taxpayer": {"taxpayer_id": taxpayer_id},
+            "active_tab": "declarations",
+        },
     )
 
 
