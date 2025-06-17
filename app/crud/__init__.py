@@ -6,6 +6,8 @@ from .taxpayer import (
 )
 from .declaration import get_declaration, create_declaration
 from .payment import get_payment, create_payment
+from .debt import calculate_debts
+from .inspection import get_inspection, list_inspections, create_inspection
 
 __all__ = [
     'get_taxpayer',
@@ -16,4 +18,8 @@ __all__ = [
     'create_declaration',
     'get_payment',
     'create_payment',
+    'calculate_debts',
+    'get_inspection',
+    'list_inspections',
+    'create_inspection',
 ]
