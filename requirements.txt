@@ -9,3 +9,4 @@ weasyprint
 openpyxl
 pandas
 jinja2
+python-multipart
