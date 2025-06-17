@@ -83,20 +83,29 @@
             <input type="text" name="taxpayer_id" class="form-control" required>
           </div>
           <div class="mb-3">
-            <label class="form-label">Тип (F/U)</label>
-            <input type="text" name="type" class="form-control" required>
+            <label class="form-label">Тип плательщика</label>
+            <select name="type" id="taxpayer-type" class="form-select" required>
+              <option value="F">Физическое лицо</option>
+              <option value="U">Юридическое лицо</option>
+            </select>
           </div>
-          <div class="mb-3">
-            <label class="form-label">Фамилия</label>
-            <input type="text" name="last_name" class="form-control">
+          <div id="fio-fields">
+            <div class="mb-3">
+              <label class="form-label">Фамилия</label>
+              <input type="text" name="last_name" class="form-control">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Имя</label>
+              <input type="text" name="first_name" class="form-control">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Отчество</label>
+              <input type="text" name="middle_name" class="form-control">
+            </div>
           </div>
-          <div class="mb-3">
-            <label class="form-label">Имя</label>
-            <input type="text" name="first_name" class="form-control">
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Отчество</label>
-            <input type="text" name="middle_name" class="form-control">
+          <div id="company-fields" class="mb-3 d-none">
+            <label class="form-label">Название компании</label>
+            <input type="text" name="company_name" class="form-control">
           </div>
         </div>
         <div class="modal-footer">
@@ -109,6 +118,22 @@
 </div>
 
 <script>
+const typeSelect = document.getElementById('taxpayer-type');
+const fioFields = document.getElementById('fio-fields');
+const companyField = document.getElementById('company-fields');
+
+function toggleFields() {
+  if (typeSelect.value === 'U') {
+    companyField.classList.remove('d-none');
+    fioFields.classList.add('d-none');
+  } else {
+    companyField.classList.add('d-none');
+    fioFields.classList.remove('d-none');
+  }
+}
+
+typeSelect.addEventListener('change', toggleFields);
+toggleFields();
 async function loadTaxpayer(id) {
   const res = await fetch(`/taxpayers/${id}`);
   if (!res.ok) {
@@ -134,9 +159,10 @@ document.getElementById('addTaxpayerForm').addEventListener('submit', async func
   const data = {
     taxpayer_id: form.taxpayer_id.value.trim(),
     type: form.type.value.trim(),
-    last_name: form.last_name.value.trim(),
-    first_name: form.first_name.value.trim(),
-    middle_name: form.middle_name.value.trim(),
+    last_name: form.last_name ? form.last_name.value.trim() : "",
+    first_name: form.first_name ? form.first_name.value.trim() : "",
+    middle_name: form.middle_name ? form.middle_name.value.trim() : "",
+    company_name: form.company_name ? form.company_name.value.trim() : "",
   };
   const errorBox = document.getElementById('add-error');
   errorBox.classList.add('d-none');
@@ -148,6 +174,16 @@ document.getElementById('addTaxpayerForm').addEventListener('submit', async func
   }
   if (!['F','U'].includes(data.type)) {
     errorBox.textContent = "Тип должен быть 'F' или 'U'";
+    errorBox.classList.remove('d-none');
+    return;
+  }
+  if (data.type === 'U' && !data.company_name) {
+    errorBox.textContent = 'Введите название компании';
+    errorBox.classList.remove('d-none');
+    return;
+  }
+  if (data.type === 'F' && (!data.last_name || !data.first_name)) {
+    errorBox.textContent = 'Введите фамилию и имя';
     errorBox.classList.remove('d-none');
     return;
   }

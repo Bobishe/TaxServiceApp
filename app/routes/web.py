@@ -79,6 +79,7 @@ async def create_taxpayer(
     last_name: str = Form(""),
     first_name: str = Form(""),
     middle_name: str = Form(""),
+    company_name: str = Form(""),
     db: AsyncSession = Depends(get_session),
 ):
     data = TaxpayerCreate(
@@ -87,6 +88,7 @@ async def create_taxpayer(
         last_name=last_name or None,
         first_name=first_name or None,
         middle_name=middle_name or None,
+        company_name=company_name or None,
     )
     await crud_create_taxpayer(db, data.dict())
     url = router.url_path_for("web.list_taxpayers")
@@ -119,6 +121,7 @@ async def update_taxpayer(
     last_name: str = Form(""),
     first_name: str = Form(""),
     middle_name: str = Form(""),
+    company_name: str = Form(""),
     db: AsyncSession = Depends(get_session),
 ):
     tp = await get_taxpayer(db, taxpayer_id)
@@ -129,6 +132,7 @@ async def update_taxpayer(
         last_name=last_name or None,
         first_name=first_name or None,
         middle_name=middle_name or None,
+        company_name=company_name or None,
     )
     await crud_update_taxpayer(db, tp, data.dict(exclude_unset=True))
     url = router.url_path_for("web.edit_taxpayer", taxpayer_id=taxpayer_id)
