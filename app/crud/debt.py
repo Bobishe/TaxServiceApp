@@ -1,8 +1,10 @@
 from datetime import date
+from decimal import Decimal
 from typing import List
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy import func
 
 from app.models import Accrual, Debt
 
@@ -56,3 +58,15 @@ async def calculate_debts(db: AsyncSession, taxpayer_id: str) -> List[Debt]:
         select(Debt).join(Accrual).where(Accrual.taxpayer_id == taxpayer_id)
     )
     return result.scalars().all()
+
+
+async def total_debt(db: AsyncSession, taxpayer_id: str) -> Decimal:
+    """Calculate total active debt for given taxpayer."""
+    await calculate_debts(db, taxpayer_id)
+    result = await db.execute(
+        select(func.sum(Debt.principal_amount + Debt.penalty_amount))
+        .join(Accrual, Debt.accrual_id == Accrual.accrual_id)
+        .where(Accrual.taxpayer_id == taxpayer_id, Debt.status == 'активно')
+    )
+    total = result.scalar()
+    return total or Decimal('0')

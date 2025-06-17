@@ -7,6 +7,7 @@
     <button type="submit" class="btn btn-outline-primary">Поиск</button>
     <a href="{{ url_for('web.new_taxpayer') }}" class="btn btn-primary ms-2">Добавить</a>
   </div>
+  <input type="hidden" name="page" value="1">
 </form>
 {% if taxpayers %}
 <table class="table table-bordered">
@@ -14,6 +15,7 @@
     <tr>
       <th>ИНН</th>
       <th>ФИО / Компания</th>
+      <th>Задолженность</th>
       <th></th>
     </tr>
   </thead>
@@ -22,12 +24,68 @@
     <tr>
       <td>{{ tp.taxpayer_id }}</td>
       <td>{{ tp.last_name or tp.company_name }} {{ tp.first_name or '' }} {{ tp.middle_name or '' }}</td>
-      <td><a href="{{ url_for('web.edit_taxpayer', taxpayer_id=tp.taxpayer_id) }}" class="btn btn-sm btn-secondary">Открыть</a></td>
+      <td>{{ debts[tp.taxpayer_id]|round(2) }}</td>
+      <td><button type="button" class="btn btn-sm btn-secondary" onclick="openTaxpayer('{{ tp.taxpayer_id }}')">Открыть</button></td>
     </tr>
   {% endfor %}
   </tbody>
 </table>
+  {% if pages > 1 %}
+  <nav>
+    <ul class="pagination">
+      <li class="page-item {% if page <= 1 %}disabled{% endif %}">
+        <a class="page-link" href="?query={{ query }}&page={{ page - 1 }}">&laquo;</a>
+      </li>
+      {% for p in range(1, pages + 1) %}
+      <li class="page-item {% if p == page %}active{% endif %}">
+        <a class="page-link" href="?query={{ query }}&page={{ p }}">{{ p }}</a>
+      </li>
+      {% endfor %}
+      <li class="page-item {% if page >= pages %}disabled{% endif %}">
+        <a class="page-link" href="?query={{ query }}&page={{ page + 1 }}">&raquo;</a>
+      </li>
+    </ul>
+  </nav>
+  {% endif %}
 {% else %}
 <p>Ничего не найдено</p>
 {% endif %}
+<div class="modal fade" id="taxpayerModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Налогоплательщик</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="taxpayerDetails">
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+async function openTaxpayer(id) {
+  const resp = await fetch('/taxpayers/' + id);
+  const modalEl = document.getElementById('taxpayerModal');
+  const details = document.getElementById('taxpayerDetails');
+  if (resp.ok) {
+    const tp = await resp.json();
+    let html = '<table class="table table-bordered">';
+    html += `<tr><th>ИНН</th><td>${tp.taxpayer_id}</td></tr>`;
+    if (tp.company_name) {
+      html += `<tr><th>Компания</th><td>${tp.company_name}</td></tr>`;
+    } else {
+      const fio = [tp.last_name || '', tp.first_name || '', tp.middle_name || ''].join(' ');
+      html += `<tr><th>ФИО</th><td>${fio.trim()}</td></tr>`;
+    }
+    html += `<tr><th>Тип</th><td>${tp.type}</td></tr>`;
+    if (tp.phone) html += `<tr><th>Телефон</th><td>${tp.phone}</td></tr>`;
+    if (tp.email) html += `<tr><th>Email</th><td>${tp.email}</td></tr>`;
+    details.innerHTML = html + '</table>';
+  } else {
+    details.textContent = 'Ошибка загрузки данных';
+  }
+  const modal = new bootstrap.Modal(modalEl);
+  modal.show();
+}
+</script>
 {% endblock %}

@@ -6,6 +6,7 @@ from app.core.database import get_session
 from app.crud import (
     get_taxpayer,
     search_taxpayers,
+    count_taxpayers,
     create_taxpayer,
     update_taxpayer,
 )
@@ -15,8 +16,14 @@ router = APIRouter()
 
 
 @router.get('/search', response_model=List[TaxpayerRead])
-async def search(query: str, db: AsyncSession = Depends(get_session)):
-    return await search_taxpayers(db, query)
+async def search(
+    query: str,
+    page: int = 1,
+    limit: int = 20,
+    db: AsyncSession = Depends(get_session),
+):
+    offset = (page - 1) * limit
+    return await search_taxpayers(db, query, limit=limit, offset=offset)
 
 
 @router.get('/{taxpayer_id}', response_model=TaxpayerRead)
