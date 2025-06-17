@@ -8,7 +8,8 @@
   {% else %}
   <div class="mb-3">
     <label class="form-label">ИНН</label>
-    <input type="text" name="taxpayer_id" class="form-control" required>
+    <input type="text" name="taxpayer_id" id="taxpayer-id" class="form-control" list="tp-suggest" autocomplete="off" required>
+    <datalist id="tp-suggest"></datalist>
   </div>
   {% endif %}
   <div class="mb-3">
@@ -39,6 +40,8 @@
 <script>
 const typeSelect = document.getElementById('tax-type');
 const descEl = document.getElementById('tax-desc');
+const tpInput = document.getElementById('taxpayer-id');
+const tpList = document.getElementById('tp-suggest');
 
 function updateDesc() {
   const opt = typeSelect.options[typeSelect.selectedIndex];
@@ -47,5 +50,26 @@ function updateDesc() {
 
 typeSelect.addEventListener('change', updateDesc);
 updateDesc();
+
+async function updateSuggestions() {
+  const q = tpInput.value.trim();
+  if (q.length < 3) {
+    tpList.innerHTML = '';
+    return;
+  }
+  try {
+    const res = await fetch(`/api/taxpayers/autocomplete?query=${encodeURIComponent(q)}`);
+    if (!res.ok) return;
+    const items = await res.json();
+    tpList.innerHTML = items.map(tp => {
+      const name = tp.company_name || `${tp.last_name || ''} ${tp.first_name || ''} ${tp.middle_name || ''}`;
+      return `<option value="${tp.taxpayer_id}">${name.trim()}</option>`;
+    }).join('');
+  } catch {}
+}
+
+if (tpInput) {
+  tpInput.addEventListener('input', updateSuggestions);
+}
 </script>
 {% endblock %}

@@ -4,6 +4,7 @@ from .taxpayer import (
     count_taxpayers,
     create_taxpayer,
     update_taxpayer,
+    autocomplete_taxpayers,
 )
 from .declaration import (
     get_declaration,
@@ -23,6 +24,7 @@ __all__ = [
     "count_taxpayers",
     "create_taxpayer",
     "update_taxpayer",
+    "autocomplete_taxpayers",
     "get_declaration",
     "create_declaration",
     "search_declarations",

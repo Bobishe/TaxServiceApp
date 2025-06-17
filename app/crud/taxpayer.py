@@ -49,6 +49,22 @@ async def count_taxpayers(db: AsyncSession, query: str) -> int:
     return result.scalar_one()
 
 
+async def autocomplete_taxpayers(
+    db: AsyncSession, prefix: str, limit: int = 5
+) -> List[Taxpayer]:
+    """Return taxpayers whose ID starts with the given prefix."""
+    if not prefix:
+        return []
+    stmt = (
+        select(Taxpayer)
+        .where(Taxpayer.taxpayer_id.like(f"{prefix}%"))
+        .order_by(Taxpayer.taxpayer_id)
+        .limit(limit)
+    )
+    result = await db.execute(stmt)
+    return result.scalars().all()
+
+
 async def create_taxpayer(db: AsyncSession, data: dict) -> Taxpayer:
     taxpayer = Taxpayer(**data)
     db.add(taxpayer)

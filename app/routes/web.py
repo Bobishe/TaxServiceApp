@@ -235,5 +235,5 @@ async def create_declaration(
         declared_tax_amount=declared_tax_amount,
     )
     await crud_create_declaration(db, data.dict())
-    url = router.url_path_for("web.edit_taxpayer", taxpayer_id=taxpayer_id)
+    url = router.url_path_for("web.list_taxpayers")
     return RedirectResponse(url, status_code=303)
