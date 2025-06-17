@@ -71,7 +71,7 @@
 </form>
 {% if not new %}
 <hr>
-<a href="{{ url_for('web.add_declaration', taxpayer_id=taxpayer.taxpayer_id) }}" class="btn btn-outline-primary">Новая декларация</a>
+<a href="{{ url_for('web.add_declaration') }}?taxpayer_id={{ taxpayer.taxpayer_id }}" class="btn btn-outline-primary">Новая декларация</a>
 {% endif %}
 <script>
 const typeSel = document.getElementById('type-select');
