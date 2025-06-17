@@ -1,0 +1,25 @@
+{% extends 'layout.html' %}
+{% block title %}Новая декларация{% endblock %}
+{% block content %}
+<h3>Новая декларация для {{ taxpayer.taxpayer_id }}</h3>
+<form method="post">
+  <input type="hidden" name="taxpayer_id" value="{{ taxpayer.taxpayer_id }}">
+  <div class="mb-3">
+    <label class="form-label">Вид налога</label>
+    <input type="text" name="tax_type_id" class="form-control" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Период (год)</label>
+    <input type="number" name="period" class="form-control" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Дата подачи</label>
+    <input type="date" name="submission_date" class="form-control" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Сумма</label>
+    <input type="number" step="0.01" name="declared_tax_amount" class="form-control" required>
+  </div>
+  <button type="submit" class="btn btn-primary">Создать</button>
+</form>
+{% endblock %}

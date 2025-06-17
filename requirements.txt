@@ -8,3 +8,4 @@ pydantic
 weasyprint
 openpyxl
 pandas
+jinja2
