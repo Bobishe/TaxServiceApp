@@ -1,5 +1,5 @@
 from datetime import date
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, validator, root_validator
 import re
 from typing import Optional
 
@@ -37,7 +37,16 @@ class TaxpayerBase(BaseModel):
 
 
 class TaxpayerCreate(TaxpayerBase):
-    pass
+    @root_validator
+    def check_required_fields(cls, values):
+        tp_type = values.get('type')
+        if tp_type == 'U':
+            if not values.get('company_name'):
+                raise ValueError('Название компании обязательно для юридического лица')
+        elif tp_type == 'F':
+            if not values.get('last_name') or not values.get('first_name'):
+                raise ValueError('ФИО обязательно для физического лица')
+        return values
 
 
 class TaxpayerUpdate(BaseModel):
