@@ -37,7 +37,7 @@ class TaxpayerBase(BaseModel):
 
 
 class TaxpayerCreate(TaxpayerBase):
-    @root_validator
+    @root_validator(skip_on_failure=True)
     def check_required_fields(cls, values):
         tp_type = values.get('type')
         if tp_type == 'U':
