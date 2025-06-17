@@ -172,15 +172,11 @@ async def update_taxpayer(
 
 
 @router.get("/declarations/new", name="web.add_declaration")
-async def new_declaration_form(request: Request, taxpayer_id: str):
-    return templates.TemplateResponse(
-        "declarations/form.html",
-        {
-            "request": request,
-            "taxpayer": {"taxpayer_id": taxpayer_id},
-            "active_tab": "declarations",
-        },
-    )
+async def new_declaration_form(request: Request, taxpayer_id: str = ""):
+    context = {"request": request, "active_tab": "declarations"}
+    if taxpayer_id:
+        context["taxpayer"] = {"taxpayer_id": taxpayer_id}
+    return templates.TemplateResponse("declarations/form.html", context)
 
 
 @router.post("/declarations/new")

@@ -1,9 +1,16 @@
 {% extends 'layout.html' %}
 {% block title %}Новая декларация{% endblock %}
 {% block content %}
-<h3>Новая декларация для {{ taxpayer.taxpayer_id }}</h3>
+<h3>Новая декларация{% if taxpayer %} для {{ taxpayer.taxpayer_id }}{% endif %}</h3>
 <form method="post">
+  {% if taxpayer %}
   <input type="hidden" name="taxpayer_id" value="{{ taxpayer.taxpayer_id }}">
+  {% else %}
+  <div class="mb-3">
+    <label class="form-label">ИНН</label>
+    <input type="text" name="taxpayer_id" class="form-control" required>
+  </div>
+  {% endif %}
   <div class="mb-3">
     <label class="form-label">Вид налога</label>
     <input type="text" name="tax_type_id" class="form-control" required>
