@@ -1,0 +1,31 @@
+{% extends 'layout.html' %}
+{% block title %}{{ 'Новый налогоплательщик' if new else 'Налогоплательщик' }}{% endblock %}
+{% block content %}
+<form method="post">
+  <div class="mb-3">
+    <label class="form-label">ИНН</label>
+    <input type="text" name="taxpayer_id" class="form-control" value="{{ taxpayer.taxpayer_id or '' }}" {% if not new %}readonly{% endif %}>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Тип (F/U)</label>
+    <input type="text" name="type" class="form-control" value="{{ taxpayer.type or '' }}">
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Фамилия</label>
+    <input type="text" name="last_name" class="form-control" value="{{ taxpayer.last_name or '' }}">
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Имя</label>
+    <input type="text" name="first_name" class="form-control" value="{{ taxpayer.first_name or '' }}">
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Отчество</label>
+    <input type="text" name="middle_name" class="form-control" value="{{ taxpayer.middle_name or '' }}">
+  </div>
+  <button type="submit" class="btn btn-primary">Сохранить</button>
+</form>
+{% if not new %}
+<hr>
+<a href="{{ url_for('web.add_declaration', taxpayer_id=taxpayer.taxpayer_id) }}" class="btn btn-outline-primary">Новая декларация</a>
+{% endif %}
+{% endblock %}

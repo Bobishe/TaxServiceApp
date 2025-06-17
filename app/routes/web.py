@@ -1,0 +1,129 @@
+from typing import List, Optional
+from fastapi import APIRouter, Depends, HTTPException, Request, Form
+from fastapi.responses import RedirectResponse
+from fastapi.templating import Jinja2Templates
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.database import get_session
+from app.crud import (
+    search_taxpayers,
+    get_taxpayer,
+    create_taxpayer as crud_create_taxpayer,
+    update_taxpayer as crud_update_taxpayer,
+    create_declaration as crud_create_declaration,
+)
+from app.schemas import TaxpayerCreate, TaxpayerUpdate, TaxDeclarationCreate
+
+templates = Jinja2Templates(directory="app/templates")
+router = APIRouter()
+
+
+@router.get("/", name="web.index")
+async def index(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
+
+
+@router.get("/taxpayers", name="web.list_taxpayers")
+async def list_taxpayers(
+    request: Request, query: str = "", db: AsyncSession = Depends(get_session)
+):
+    taxpayers = await search_taxpayers(db, query) if query else []
+    return templates.TemplateResponse(
+        "taxpayers/list.html",
+        {"request": request, "taxpayers": taxpayers, "query": query},
+    )
+
+
+@router.get("/taxpayers/new", name="web.new_taxpayer")
+async def new_taxpayer_form(request: Request):
+    return templates.TemplateResponse(
+        "taxpayers/form.html", {"request": request, "taxpayer": {}, "new": True}
+    )
+
+
+@router.post("/taxpayers/new")
+async def create_taxpayer(
+    request: Request,
+    taxpayer_id: str = Form(...),
+    type: str = Form(...),
+    last_name: str = Form(""),
+    first_name: str = Form(""),
+    middle_name: str = Form(""),
+    db: AsyncSession = Depends(get_session),
+):
+    data = TaxpayerCreate(
+        taxpayer_id=taxpayer_id,
+        type=type,
+        last_name=last_name or None,
+        first_name=first_name or None,
+        middle_name=middle_name or None,
+    )
+    await crud_create_taxpayer(db, data.dict())
+    url = router.url_path_for("web.list_taxpayers")
+    return RedirectResponse(url, status_code=303)
+
+
+@router.get("/taxpayers/{taxpayer_id}", name="web.edit_taxpayer")
+async def edit_taxpayer(
+    request: Request, taxpayer_id: str, db: AsyncSession = Depends(get_session)
+):
+    tp = await get_taxpayer(db, taxpayer_id)
+    if not tp:
+        raise HTTPException(status_code=404, detail="Taxpayer not found")
+    return templates.TemplateResponse(
+        "taxpayers/form.html", {"request": request, "taxpayer": tp, "new": False}
+    )
+
+
+@router.post("/taxpayers/{taxpayer_id}")
+async def update_taxpayer(
+    request: Request,
+    taxpayer_id: str,
+    type: str = Form(...),
+    last_name: str = Form(""),
+    first_name: str = Form(""),
+    middle_name: str = Form(""),
+    db: AsyncSession = Depends(get_session),
+):
+    tp = await get_taxpayer(db, taxpayer_id)
+    if not tp:
+        raise HTTPException(status_code=404, detail="Taxpayer not found")
+    data = TaxpayerUpdate(
+        type=type,
+        last_name=last_name or None,
+        first_name=first_name or None,
+        middle_name=middle_name or None,
+    )
+    await crud_update_taxpayer(db, tp, data.dict(exclude_unset=True))
+    url = router.url_path_for("web.edit_taxpayer", taxpayer_id=taxpayer_id)
+    return RedirectResponse(url, status_code=303)
+
+
+@router.get("/declarations/new", name="web.add_declaration")
+async def new_declaration_form(request: Request, taxpayer_id: str):
+    return templates.TemplateResponse(
+        "declarations/form.html",
+        {"request": request, "taxpayer": {"taxpayer_id": taxpayer_id}},
+    )
+
+
+@router.post("/declarations/new")
+async def create_declaration(
+    request: Request,
+    taxpayer_id: str = Form(...),
+    tax_type_id: str = Form(...),
+    period: int = Form(...),
+    submission_date: str = Form(...),
+    declared_tax_amount: float = Form(...),
+    db: AsyncSession = Depends(get_session),
+):
+    data = TaxDeclarationCreate(
+        taxpayer_id=taxpayer_id,
+        tax_type_id=tax_type_id,
+        period=period,
+        submission_date=submission_date,
+        declared_tax_amount=declared_tax_amount,
+    )
+    await crud_create_declaration(db, data.dict())
+    url = router.url_path_for("web.edit_taxpayer", taxpayer_id=taxpayer_id)
+    return RedirectResponse(url, status_code=303)

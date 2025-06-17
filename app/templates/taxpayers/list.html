@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+{% block title %}Налогоплательщики{% endblock %}
+{% block content %}
+<form method="get" class="mb-3">
+  <div class="input-group">
+    <input type="text" name="query" class="form-control" placeholder="ИНН или ФИО" value="{{ query or '' }}">
+    <button type="submit" class="btn btn-outline-primary">Поиск</button>
+    <a href="{{ url_for('web.new_taxpayer') }}" class="btn btn-primary ms-2">Добавить</a>
+  </div>
+</form>
+{% if taxpayers %}
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>ИНН</th>
+      <th>ФИО / Компания</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for tp in taxpayers %}
+    <tr>
+      <td>{{ tp.taxpayer_id }}</td>
+      <td>{{ tp.last_name or tp.company_name }} {{ tp.first_name or '' }} {{ tp.middle_name or '' }}</td>
+      <td><a href="{{ url_for('web.edit_taxpayer', taxpayer_id=tp.taxpayer_id) }}" class="btn btn-sm btn-secondary">Открыть</a></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>Ничего не найдено</p>
+{% endif %}
+{% endblock %}
