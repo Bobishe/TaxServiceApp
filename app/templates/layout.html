@@ -5,9 +5,32 @@
   <title>{% block title %}Налог-Учёт{% endblock %}</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body class="p-4">
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="{{ url_for('web.list_taxpayers') }}">Налог‑Учёт</a>
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link {% if active_tab=='taxpayers' %}active{% endif %}" href="{{ url_for('web.list_taxpayers') }}">Налогоплательщики</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if active_tab=='declarations' %}active{% endif %}" href="#">Декларации</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if active_tab=='payments' %}active{% endif %}" href="#">Платежи</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if active_tab=='reports' %}active{% endif %}" href="#">Отчёты</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if active_tab=='export' %}active{% endif %}" href="#">Экспорт</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
 <div class="container">
-  <h1 class="mb-4">Налог‑Учёт</h1>
   {% block content %}{% endblock %}
 </div>
 </body>

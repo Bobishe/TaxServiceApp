@@ -7,6 +7,7 @@
     <button type="submit" class="btn btn-outline-primary">Поиск</button>
     <a href="{{ url_for('web.new_taxpayer') }}" class="btn btn-primary ms-2">Добавить</a>
   </div>
+  <input type="hidden" name="page" value="1">
 </form>
 {% if taxpayers %}
 <table class="table table-bordered">
@@ -27,6 +28,23 @@
   {% endfor %}
   </tbody>
 </table>
+  {% if pages > 1 %}
+  <nav>
+    <ul class="pagination">
+      <li class="page-item {% if page <= 1 %}disabled{% endif %}">
+        <a class="page-link" href="?query={{ query }}&page={{ page - 1 }}">&laquo;</a>
+      </li>
+      {% for p in range(1, pages + 1) %}
+      <li class="page-item {% if p == page %}active{% endif %}">
+        <a class="page-link" href="?query={{ query }}&page={{ p }}">{{ p }}</a>
+      </li>
+      {% endfor %}
+      <li class="page-item {% if page >= pages %}disabled{% endif %}">
+        <a class="page-link" href="?query={{ query }}&page={{ page + 1 }}">&raquo;</a>
+      </li>
+    </ul>
+  </nav>
+  {% endif %}
 {% else %}
 <p>Ничего не найдено</p>
 {% endif %}

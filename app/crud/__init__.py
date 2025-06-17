@@ -1,6 +1,7 @@
 from .taxpayer import (
     get_taxpayer,
     search_taxpayers,
+    count_taxpayers,
     create_taxpayer,
     update_taxpayer,
 )
@@ -13,6 +14,7 @@ from .report import tax_revenue_report, debtors_list
 __all__ = [
     'get_taxpayer',
     'search_taxpayers',
+    'count_taxpayers',
     'create_taxpayer',
     'update_taxpayer',
     'get_declaration',
