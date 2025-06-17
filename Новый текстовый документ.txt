@@ -1,0 +1,31 @@
+python -m venv venv
+
+
+.\venv\Scripts\Activate
+
+
+
+
+python -m pip install --upgrade pip
+
+# FastAPI + ASGI‑сервер
+pip install fastapi uvicorn[standard]
+
+# SQLAlchemy 2 + async‑MySQL драйвер
+pip install "sqlalchemy>=2.0" asyncmy aiomysql
+
+# Alembic — миграции
+pip install alembic
+
+# Pydantic (для схем) и python‑dotenv (конфиги)
+pip install pydantic python-dotenv
+
+# Генерация PDF/Excel‑отчётов
+pip install weasyprint openpyxl
+
+# Доп. утилита для экспорта/импорта CSV
+pip install pandas
+
+
+
+uvicorn main:app --reload --port 8000

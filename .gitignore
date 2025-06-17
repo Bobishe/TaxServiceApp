@@ -1,0 +1,88 @@
+# ───────────────────────────────────────────────
+#  Python / FastAPI / Alembic / Windows project
+# ───────────────────────────────────────────────
+
+####################
+# Python artefacts #
+####################
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+#####################
+# Virtual environments
+#####################
+venv/
+env/
+ENV/
+
+##############
+# Config files
+##############
+# локальные переменные окружения
+.env
+*.env
+
+##################
+# Log / temp data
+##################
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+*.orig
+
+##################
+# Alembic
+##################
+# версионированные миграции хранить, а файлы кэша игнорировать
+alembic/versions/__pycache__/
+
+##################
+# Reports / exports
+##################
+/exports/
+*.pdf
+*.xlsx
+*.csv
+
+##################
+# MySQL dumps
+##################
+*.sql
+*.dump
+
+##################
+# IDE / Editor
+##################
+.vscode/
+.idea/
+*.iml
+*.sublime-workspace
+*.sublime-project
+
+##################
+# System files
+##################
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+desktop.ini
+
+##################
+# Misc
+##################
+# pytest cache
+.pytest_cache/
+.cache/
+.coverage
+htmlcov/
