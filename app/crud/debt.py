@@ -55,7 +55,9 @@ async def calculate_debts(db: AsyncSession, taxpayer_id: str) -> List[Debt]:
     await db.commit()
 
     result = await db.execute(
-        select(Debt).join(Accrual).where(Accrual.taxpayer_id == taxpayer_id)
+        select(Debt)
+        .join(Accrual, Accrual.accrual_id == Debt.accrual_id)
+        .where(Accrual.taxpayer_id == taxpayer_id)
     )
     return result.scalars().all()
 
