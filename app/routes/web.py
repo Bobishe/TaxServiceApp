@@ -80,6 +80,14 @@ async def create_taxpayer(
     first_name: str = Form(""),
     middle_name: str = Form(""),
     company_name: str = Form(""),
+    ogrn: str = Form(""),
+    region_code: str = Form(""),
+    city: str = Form(""),
+    street: str = Form(""),
+    house: str = Form(""),
+    apartment: str = Form(""),
+    phone: str = Form(""),
+    email: str = Form(""),
     db: AsyncSession = Depends(get_session),
 ):
     data = TaxpayerCreate(
@@ -89,6 +97,14 @@ async def create_taxpayer(
         first_name=first_name or None,
         middle_name=middle_name or None,
         company_name=company_name or None,
+        ogrn=ogrn or None,
+        region_code=int(region_code) if region_code else None,
+        city=city or None,
+        street=street or None,
+        house=house or None,
+        apartment=apartment or None,
+        phone=phone or None,
+        email=email or None,
     )
     await crud_create_taxpayer(db, data.dict())
     url = router.url_path_for("web.list_taxpayers")
@@ -122,6 +138,14 @@ async def update_taxpayer(
     first_name: str = Form(""),
     middle_name: str = Form(""),
     company_name: str = Form(""),
+    ogrn: str = Form(""),
+    region_code: str = Form(""),
+    city: str = Form(""),
+    street: str = Form(""),
+    house: str = Form(""),
+    apartment: str = Form(""),
+    phone: str = Form(""),
+    email: str = Form(""),
     db: AsyncSession = Depends(get_session),
 ):
     tp = await get_taxpayer(db, taxpayer_id)
@@ -133,6 +157,14 @@ async def update_taxpayer(
         first_name=first_name or None,
         middle_name=middle_name or None,
         company_name=company_name or None,
+        ogrn=ogrn or None,
+        region_code=int(region_code) if region_code else None,
+        city=city or None,
+        street=street or None,
+        house=house or None,
+        apartment=apartment or None,
+        phone=phone or None,
+        email=email or None,
     )
     await crud_update_taxpayer(db, tp, data.dict(exclude_unset=True))
     url = router.url_path_for("web.edit_taxpayer", taxpayer_id=taxpayer_id)
