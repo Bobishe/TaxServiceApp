@@ -7,7 +7,7 @@ from .taxpayer import (
 )
 from .declaration import get_declaration, create_declaration
 from .payment import get_payment, create_payment
-from .debt import calculate_debts
+from .debt import calculate_debts, get_total_debt
 from .inspection import get_inspection, list_inspections, create_inspection
 from .report import tax_revenue_report, debtors_list
 
@@ -22,6 +22,7 @@ __all__ = [
     'get_payment',
     'create_payment',
     'calculate_debts',
+    'get_total_debt',
     'get_inspection',
     'list_inspections',
     'create_inspection',

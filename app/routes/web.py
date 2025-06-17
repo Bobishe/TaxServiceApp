@@ -12,6 +12,7 @@ from app.crud import (
     create_taxpayer as crud_create_taxpayer,
     update_taxpayer as crud_update_taxpayer,
     create_declaration as crud_create_declaration,
+    get_total_debt,
 )
 from app.schemas import TaxpayerCreate, TaxpayerUpdate, TaxDeclarationCreate
 
@@ -36,12 +37,19 @@ async def list_taxpayers(
     offset = (page - 1) * limit
     total = await count_taxpayers(db, query)
     taxpayers = await search_taxpayers(db, query, limit=limit, offset=offset)
+
+    # Calculate total debt for each taxpayer
+    debt_map = {}
+    for tp in taxpayers:
+        debt_map[tp.taxpayer_id] = await get_total_debt(db, tp.taxpayer_id)
+
     pages = (total + limit - 1) // limit
     return templates.TemplateResponse(
         "taxpayers/list.html",
         {
             "request": request,
             "taxpayers": taxpayers,
+            "debt_map": debt_map,
             "query": query,
             "page": page,
             "pages": pages,
