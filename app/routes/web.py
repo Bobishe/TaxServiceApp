@@ -12,6 +12,8 @@ from app.crud import (
     create_taxpayer as crud_create_taxpayer,
     update_taxpayer as crud_update_taxpayer,
     create_declaration as crud_create_declaration,
+    search_declarations,
+    count_declarations,
     get_total_debt,
 )
 from app.schemas import TaxpayerCreate, TaxpayerUpdate, TaxDeclarationCreate
@@ -169,6 +171,31 @@ async def update_taxpayer(
     await crud_update_taxpayer(db, tp, data.dict(exclude_unset=True))
     url = router.url_path_for("web.edit_taxpayer", taxpayer_id=taxpayer_id)
     return RedirectResponse(url, status_code=303)
+
+
+@router.get("/declarations", name="web.list_declarations")
+async def list_declarations(
+    request: Request,
+    query: str = "",
+    page: int = 1,
+    db: AsyncSession = Depends(get_session),
+):
+    limit = 20
+    offset = (page - 1) * limit
+    total = await count_declarations(db, query)
+    declarations = await search_declarations(db, query, limit=limit, offset=offset)
+    pages = (total + limit - 1) // limit
+    return templates.TemplateResponse(
+        "declarations/list.html",
+        {
+            "request": request,
+            "declarations": declarations,
+            "query": query,
+            "page": page,
+            "pages": pages,
+            "active_tab": "declarations",
+        },
+    )
 
 
 @router.get("/declarations/new", name="web.add_declaration")
