@@ -1,6 +1,7 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
 
 from app.core.database import get_session
 from app.crud import (
@@ -36,7 +37,11 @@ async def read_taxpayer(taxpayer_id: str, db: AsyncSession = Depends(get_session
 
 @router.post('/', response_model=TaxpayerRead)
 async def create(tp: TaxpayerCreate, db: AsyncSession = Depends(get_session)):
-    return await create_taxpayer(db, tp.dict())
+    try:
+        return await create_taxpayer(db, tp.dict())
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(status_code=400, detail='Taxpayer already exists')
 
 
 @router.put('/{taxpayer_id}', response_model=TaxpayerRead)

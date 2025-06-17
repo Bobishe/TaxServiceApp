@@ -1,5 +1,6 @@
 from datetime import date
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
+import re
 from typing import Optional
 
 
@@ -21,6 +22,18 @@ class TaxpayerBase(BaseModel):
     apartment: Optional[str] = None
     phone: Optional[str] = None
     email: Optional[str] = None
+
+    @validator('taxpayer_id')
+    def validate_taxpayer_id(cls, v: str) -> str:
+        if not re.fullmatch(r'\d{10}(?:\d{2})?', v):
+            raise ValueError('ИНН должен содержать 10 или 12 цифр')
+        return v
+
+    @validator('type')
+    def validate_type(cls, v: str) -> str:
+        if v not in ('F', 'U'):
+            raise ValueError("Тип должен быть 'F' или 'U'")
+        return v
 
 
 class TaxpayerCreate(TaxpayerBase):
