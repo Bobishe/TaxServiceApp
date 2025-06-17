@@ -56,3 +56,13 @@ async def calculate_debts(db: AsyncSession, taxpayer_id: str) -> List[Debt]:
         select(Debt).join(Accrual).where(Accrual.taxpayer_id == taxpayer_id)
     )
     return result.scalars().all()
+
+
+async def get_total_debt(db: AsyncSession, taxpayer_id: str) -> float:
+    """Return total active debt (principal + penalty) for a taxpayer."""
+    debts = await calculate_debts(db, taxpayer_id)
+    total = 0.0
+    for debt in debts:
+        if debt.status == "активно":
+            total += float(debt.principal_amount) + float(debt.penalty_amount)
+    return round(total, 2)

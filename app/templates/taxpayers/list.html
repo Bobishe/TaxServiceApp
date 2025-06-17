@@ -15,6 +15,7 @@
     <tr>
       <th>ИНН</th>
       <th>ФИО / Компания</th>
+      <th>Задолженность</th>
       <th></th>
     </tr>
   </thead>
@@ -23,7 +24,10 @@
     <tr>
       <td>{{ tp.taxpayer_id }}</td>
       <td>{{ tp.last_name or tp.company_name }} {{ tp.first_name or '' }} {{ tp.middle_name or '' }}</td>
-      <td><a href="{{ url_for('web.edit_taxpayer', taxpayer_id=tp.taxpayer_id) }}" class="btn btn-sm btn-secondary">Открыть</a></td>
+      <td>{{ '%.2f'|format(debt_map[tp.taxpayer_id]) }}</td>
+      <td>
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#taxpayerModal" onclick="loadTaxpayer('{{ tp.taxpayer_id }}')">Открыть</button>
+      </td>
     </tr>
   {% endfor %}
   </tbody>
@@ -48,4 +52,39 @@
 {% else %}
 <p>Ничего не найдено</p>
 {% endif %}
+
+<!-- Modal for taxpayer details -->
+<div class="modal fade" id="taxpayerModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Налогоплательщик</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="taxpayerModalBody">
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+async function loadTaxpayer(id) {
+  const res = await fetch(`/taxpayers/${id}`);
+  if (!res.ok) {
+    document.getElementById('taxpayerModalBody').innerHTML = 'Ошибка загрузки';
+    return;
+  }
+  const data = await res.json();
+  const lines = [];
+  lines.push(`<strong>ИНН:</strong> ${data.taxpayer_id}`);
+  if (data.type === 'F') {
+    lines.push(`<strong>ФИО:</strong> ${data.last_name || ''} ${data.first_name || ''} ${data.middle_name || ''}`);
+  } else {
+    lines.push(`<strong>Компания:</strong> ${data.company_name || ''}`);
+  }
+  if (data.phone) lines.push(`<strong>Телефон:</strong> ${data.phone}`);
+  if (data.email) lines.push(`<strong>Email:</strong> ${data.email}`);
+  document.getElementById('taxpayerModalBody').innerHTML = '<p>' + lines.join('</p><p>') + '</p>';
+}
+</script>
 {% endblock %}
