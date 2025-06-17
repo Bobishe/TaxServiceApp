@@ -4,6 +4,7 @@ from .payment import PaymentCreate, PaymentRead
 from .accrual import AccrualRead
 from .debt import DebtRead
 from .inspection import InspectionCreate, InspectionRead
+from .report import TaxRevenueItem, DebtorItem
 
 __all__ = [
     'TaxpayerCreate',
@@ -17,4 +18,6 @@ __all__ = [
     'DebtRead',
     'InspectionCreate',
     'InspectionRead',
+    'TaxRevenueItem',
+    'DebtorItem',
 ]
