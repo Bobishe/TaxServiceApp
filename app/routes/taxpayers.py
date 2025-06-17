@@ -10,10 +10,20 @@ from app.crud import (
     count_taxpayers,
     create_taxpayer,
     update_taxpayer,
+    autocomplete_taxpayers,
 )
 from app.schemas import TaxpayerCreate, TaxpayerUpdate, TaxpayerRead
 
 router = APIRouter()
+
+
+@router.get('/autocomplete', response_model=List[TaxpayerRead])
+async def autocomplete(
+    query: str,
+    limit: int = 5,
+    db: AsyncSession = Depends(get_session),
+):
+    return await autocomplete_taxpayers(db, query, limit=limit)
 
 
 @router.get('/search', response_model=List[TaxpayerRead])
