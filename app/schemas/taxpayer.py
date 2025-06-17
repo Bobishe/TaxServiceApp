@@ -43,6 +43,8 @@ class TaxpayerCreate(TaxpayerBase):
         if tp_type == 'U':
             if not values.get('company_name'):
                 raise ValueError('Название компании обязательно для юридического лица')
+            if not values.get('ogrn'):
+                raise ValueError('ОГРН обязателен для юридического лица')
         elif tp_type == 'F':
             if not values.get('last_name') or not values.get('first_name'):
                 raise ValueError('ФИО обязательно для физического лица')

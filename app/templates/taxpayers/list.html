@@ -106,6 +106,42 @@
           <div id="company-fields" class="mb-3 d-none">
             <label class="form-label">Название компании</label>
             <input type="text" name="company_name" class="form-control">
+            <div class="mt-3">
+              <label class="form-label">ОГРН</label>
+              <input type="text" name="ogrn" class="form-control">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Код региона</label>
+            <input type="text" name="region_code" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Город</label>
+            <input type="text" name="city" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Улица</label>
+            <input type="text" name="street" class="form-control">
+          </div>
+          <div class="row">
+            <div class="col mb-3">
+              <label class="form-label">Дом</label>
+              <input type="text" name="house" class="form-control">
+            </div>
+            <div class="col mb-3">
+              <label class="form-label">Квартира</label>
+              <input type="text" name="apartment" class="form-control">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col mb-3">
+              <label class="form-label">Телефон</label>
+              <input type="text" name="phone" class="form-control">
+            </div>
+            <div class="col mb-3">
+              <label class="form-label">Email</label>
+              <input type="text" name="email" class="form-control">
+            </div>
           </div>
         </div>
         <div class="modal-footer">
@@ -147,7 +183,13 @@ async function loadTaxpayer(id) {
     lines.push(`<strong>ФИО:</strong> ${data.last_name || ''} ${data.first_name || ''} ${data.middle_name || ''}`);
   } else {
     lines.push(`<strong>Компания:</strong> ${data.company_name || ''}`);
+    if (data.ogrn) lines.push(`<strong>ОГРН:</strong> ${data.ogrn}`);
   }
+  if (data.region_code) lines.push(`<strong>Регион:</strong> ${data.region_code}`);
+  if (data.city) lines.push(`<strong>Город:</strong> ${data.city}`);
+  if (data.street) lines.push(`<strong>Улица:</strong> ${data.street}`);
+  if (data.house) lines.push(`<strong>Дом:</strong> ${data.house}`);
+  if (data.apartment) lines.push(`<strong>Квартира:</strong> ${data.apartment}`);
   if (data.phone) lines.push(`<strong>Телефон:</strong> ${data.phone}`);
   if (data.email) lines.push(`<strong>Email:</strong> ${data.email}`);
   document.getElementById('taxpayerModalBody').innerHTML = '<p>' + lines.join('</p><p>') + '</p>';
@@ -163,6 +205,14 @@ document.getElementById('addTaxpayerForm').addEventListener('submit', async func
     first_name: form.first_name ? form.first_name.value.trim() : "",
     middle_name: form.middle_name ? form.middle_name.value.trim() : "",
     company_name: form.company_name ? form.company_name.value.trim() : "",
+    ogrn: form.ogrn ? form.ogrn.value.trim() : "",
+    region_code: form.region_code ? form.region_code.value.trim() : "",
+    city: form.city ? form.city.value.trim() : "",
+    street: form.street ? form.street.value.trim() : "",
+    house: form.house ? form.house.value.trim() : "",
+    apartment: form.apartment ? form.apartment.value.trim() : "",
+    phone: form.phone ? form.phone.value.trim() : "",
+    email: form.email ? form.email.value.trim() : "",
   };
   const errorBox = document.getElementById('add-error');
   errorBox.classList.add('d-none');
@@ -179,6 +229,11 @@ document.getElementById('addTaxpayerForm').addEventListener('submit', async func
   }
   if (data.type === 'U' && !data.company_name) {
     errorBox.textContent = 'Введите название компании';
+    errorBox.classList.remove('d-none');
+    return;
+  }
+  if (data.type === 'U' && !data.ogrn) {
+    errorBox.textContent = 'Введите ОГРН';
     errorBox.classList.remove('d-none');
     return;
   }
