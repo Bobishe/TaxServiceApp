@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy import func, or_
 
 from app.models.payment import Payment
 from app.models.accrual import Accrual
@@ -29,3 +30,26 @@ async def create_payment(db: AsyncSession, data: dict) -> Payment:
     await db.commit()
     await db.refresh(payment)
     return payment
+
+async def search_payments(
+    db: AsyncSession, query: str, limit: int = 20, offset: int = 0
+) -> list[Payment]:
+    stmt = select(Payment)
+    if query:
+        conditions = [Payment.taxpayer_id == query]
+        if query.isdigit():
+            conditions.append(Payment.payment_id == int(query))
+        stmt = stmt.where(or_(*conditions))
+    stmt = stmt.order_by(Payment.payment_id).offset(offset).limit(limit)
+    result = await db.execute(stmt)
+    return result.scalars().all()
+
+async def count_payments(db: AsyncSession, query: str) -> int:
+    stmt = select(func.count()).select_from(Payment)
+    if query:
+        conditions = [Payment.taxpayer_id == query]
+        if query.isdigit():
+            conditions.append(Payment.payment_id == int(query))
+        stmt = stmt.where(or_(*conditions))
+    result = await db.execute(stmt)
+    return result.scalar_one()
