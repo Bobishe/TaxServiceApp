@@ -12,7 +12,12 @@ from .declaration import (
     search_declarations,
     count_declarations,
 )
-from .payment import get_payment, create_payment
+from .payment import (
+    get_payment,
+    create_payment,
+    search_payments,
+    count_payments,
+)
 from .debt import calculate_debts, get_total_debt
 from .inspection import get_inspection, list_inspections, create_inspection
 from .report import tax_revenue_report, debtors_list
@@ -31,6 +36,8 @@ __all__ = [
     "count_declarations",
     "get_payment",
     "create_payment",
+    "search_payments",
+    "count_payments",
     "calculate_debts",
     "get_total_debt",
     "get_inspection",

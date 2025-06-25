@@ -14,10 +14,18 @@ from app.crud import (
     create_declaration as crud_create_declaration,
     search_declarations,
     count_declarations,
+    search_payments,
+    count_payments,
+    create_payment as crud_create_payment,
     list_tax_types,
     get_total_debt,
 )
-from app.schemas import TaxpayerCreate, TaxpayerUpdate, TaxDeclarationCreate
+from app.schemas import (
+    TaxpayerCreate,
+    TaxpayerUpdate,
+    TaxDeclarationCreate,
+    PaymentCreate,
+)
 
 templates = Jinja2Templates(directory="app/templates")
 router = APIRouter()
@@ -236,4 +244,56 @@ async def create_declaration(
     )
     await crud_create_declaration(db, data.dict())
     url = router.url_path_for("web.list_taxpayers")
+    return RedirectResponse(url, status_code=303)
+
+@router.get("/payments", name="web.list_payments")
+async def list_payments(
+    request: Request,
+    query: str = "",
+    page: int = 1,
+    db: AsyncSession = Depends(get_session),
+):
+    limit = 20
+    offset = (page - 1) * limit
+    total = await count_payments(db, query)
+    payments = await search_payments(db, query, limit=limit, offset=offset)
+    pages = (total + limit - 1) // limit
+    return templates.TemplateResponse(
+        "payments/list.html",
+        {
+            "request": request,
+            "payments": payments,
+            "query": query,
+            "page": page,
+            "pages": pages,
+            "active_tab": "payments",
+        },
+    )
+
+
+@router.get("/payments/new", name="web.add_payment")
+async def new_payment_form(request: Request):
+    return templates.TemplateResponse(
+        "payments/form.html",
+        {"request": request, "active_tab": "payments"},
+    )
+
+
+@router.post("/payments/new")
+async def create_payment(
+    request: Request,
+    taxpayer_id: str = Form(...),
+    accrual_id: int = Form(...),
+    payment_date: str = Form(...),
+    amount: float = Form(...),
+    db: AsyncSession = Depends(get_session),
+):
+    data = PaymentCreate(
+        taxpayer_id=taxpayer_id,
+        accrual_id=accrual_id,
+        payment_date=payment_date,
+        amount=amount,
+    )
+    await crud_create_payment(db, data.dict())
+    url = router.url_path_for("web.list_payments")
     return RedirectResponse(url, status_code=303)
