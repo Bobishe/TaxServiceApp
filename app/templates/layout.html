@@ -21,10 +21,7 @@
           <a class="nav-link {% if active_tab=='payments' %}active{% endif %}" href="{{ url_for('web.list_payments') }}">Платежи</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link {% if active_tab=='reports' %}active{% endif %}" href="#">Отчёты</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link {% if active_tab=='export' %}active{% endif %}" href="#">Экспорт</a>
+          <a class="nav-link" href="/api/backup/export/sql">Экспорт</a>
         </li>
       </ul>
     </div>

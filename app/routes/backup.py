@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, UploadFile, File
-from fastapi.responses import Response
+from fastapi.responses import Response, FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_session
@@ -63,6 +63,13 @@ async def export_sql():
     with open(path, 'rb') as f:
         data = f.read()
     return Response(data, media_type='application/sql')
+
+
+@router.get('/export/sql', name='backup.export_sql_get')
+async def export_sql_get():
+    path = 'exports/dump.sql'
+    export_sql_dump(path)
+    return FileResponse(path, media_type='application/sql', filename='dump.sql')
 
 
 @router.post('/import/sql')
