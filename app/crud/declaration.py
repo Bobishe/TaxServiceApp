@@ -5,6 +5,7 @@ from sqlalchemy import func
 
 from app.models.taxdeclaration import TaxDeclaration
 from app.models.accrual import Accrual
+from app.schemas.declaration import TaxDeclarationWithAccrual
 
 
 async def get_declaration(db: AsyncSession, declaration_id: int):
@@ -60,3 +61,31 @@ async def count_declarations(db: AsyncSession, query: str) -> int:
         )
     result = await db.execute(stmt)
     return result.scalar_one()
+
+
+async def list_declarations_by_taxpayer(
+    db: AsyncSession, taxpayer_id: str
+) -> list[TaxDeclarationWithAccrual]:
+    """Return declarations with related accrual IDs for a taxpayer."""
+    stmt = (
+        select(TaxDeclaration, Accrual.accrual_id)
+        .join(Accrual, Accrual.declaration_id == TaxDeclaration.declaration_id)
+        .where(TaxDeclaration.taxpayer_id == taxpayer_id)
+        .order_by(TaxDeclaration.declaration_id)
+    )
+    result = await db.execute(stmt)
+    items: list[TaxDeclarationWithAccrual] = []
+    for decl, accrual_id in result.all():
+        items.append(
+            TaxDeclarationWithAccrual(
+                declaration_id=decl.declaration_id,
+                taxpayer_id=decl.taxpayer_id,
+                tax_type_id=decl.tax_type_id,
+                period=decl.period,
+                submission_date=decl.submission_date,
+                declared_tax_amount=decl.declared_tax_amount,
+                status=decl.status,
+                accrual_id=accrual_id,
+            )
+        )
+    return items

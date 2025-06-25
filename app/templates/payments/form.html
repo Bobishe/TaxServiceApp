@@ -9,8 +9,10 @@
     <datalist id="tp-suggest"></datalist>
   </div>
   <div class="mb-3">
-    <label class="form-label">ID начисления</label>
-    <input type="number" name="accrual_id" class="form-control" required>
+    <label class="form-label">Декларация</label>
+    <select name="accrual_id" id="declaration-select" class="form-select" required disabled>
+      <option value="">Введите ИНН</option>
+    </select>
   </div>
   <div class="mb-3">
     <label class="form-label">Дата платежа</label>
@@ -25,6 +27,7 @@
 <script>
 const tpInput = document.getElementById('taxpayer-id');
 const tpList = document.getElementById('tp-suggest');
+const declSelect = document.getElementById('declaration-select');
 async function updateSuggestions() {
   const q = tpInput.value.trim();
   if (q.length < 3) {
@@ -43,6 +46,28 @@ async function updateSuggestions() {
 }
 if (tpInput) {
   tpInput.addEventListener('input', updateSuggestions);
+  tpInput.addEventListener('change', updateDeclarations);
 }
+
+async function updateDeclarations() {
+  const tid = tpInput.value.trim();
+  if (!tid) {
+    declSelect.innerHTML = '<option value="">Введите ИНН</option>';
+    declSelect.disabled = true;
+    return;
+  }
+  try {
+    const res = await fetch(`/api/declarations/by_taxpayer/${encodeURIComponent(tid)}`);
+    if (!res.ok) return;
+    const items = await res.json();
+    declSelect.innerHTML = items.map(d => {
+      const text = `${d.declaration_id} / ${d.tax_type_id} / ${d.period}`;
+      return `<option value="${d.accrual_id}">${text}</option>`;
+    }).join('');
+    declSelect.disabled = items.length === 0;
+  } catch {}
+}
+
+updateDeclarations();
 </script>
 {% endblock %}

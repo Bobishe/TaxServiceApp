@@ -11,6 +11,7 @@ from .declaration import (
     create_declaration,
     search_declarations,
     count_declarations,
+    list_declarations_by_taxpayer,
 )
 from .payment import (
     get_payment,
@@ -34,6 +35,7 @@ __all__ = [
     "create_declaration",
     "search_declarations",
     "count_declarations",
+    "list_declarations_by_taxpayer",
     "get_payment",
     "create_payment",
     "search_payments",

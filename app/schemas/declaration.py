@@ -23,3 +23,9 @@ class TaxDeclarationRead(TaxDeclarationBase):
 
     class Config:
         orm_mode = True
+
+
+class TaxDeclarationWithAccrual(TaxDeclarationRead):
+    """Declaration along with related accrual ID."""
+
+    accrual_id: int
