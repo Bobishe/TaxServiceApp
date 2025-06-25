@@ -16,7 +16,6 @@ async def calculate_debts(db: AsyncSession, taxpayer_id: str) -> List[Debt]:
     result = await db.execute(
         select(Accrual).where(
             Accrual.taxpayer_id == taxpayer_id,
-            Accrual.due_date < today,
             Accrual.status != 'оплачено',
         )
     )
@@ -24,33 +23,34 @@ async def calculate_debts(db: AsyncSession, taxpayer_id: str) -> List[Debt]:
 
     for accrual in accruals:
         principal = Decimal(accrual.amount) - Decimal(accrual.paid_amount)
-        if principal <= 0:
-            continue
         debt_result = await db.execute(
             select(Debt).where(Debt.accrual_id == accrual.accrual_id)
         )
         debt = debt_result.scalar_one_or_none()
+
         if debt is None:
             debt = Debt(
                 accrual_id=accrual.accrual_id,
                 principal_amount=principal,
                 penalty_amount=Decimal("0.00"),
-                penalty_date=today,
-                status='активно',
+                penalty_date=accrual.due_date if accrual.due_date > today else today,
+                status="активно" if principal > 0 else "погашено",
             )
             db.add(debt)
         else:
             debt.principal_amount = principal
-            if debt.status == 'активно':
-                days = (today - debt.penalty_date).days
-                if days > 0:
-                    penalty_increment = (
-                        debt.principal_amount * REF_RATE / Decimal(300) * days
-                    ).quantize(Decimal("0.01"))
-                    debt.penalty_amount += penalty_increment
-                    debt.penalty_date = today
             if principal == 0:
-                debt.status = 'погашено'
+                debt.status = "погашено"
+            else:
+                debt.status = "активно"
+                if today > accrual.due_date:
+                    days = (today - debt.penalty_date).days
+                    if days > 0:
+                        penalty_increment = (
+                            debt.principal_amount * REF_RATE / Decimal(300) * days
+                        ).quantize(Decimal("0.01"))
+                        debt.penalty_amount += penalty_increment
+                        debt.penalty_date = today
 
     await db.commit()
 

@@ -3,6 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import func
 
+from .debt import calculate_debts
+
 from app.models.taxdeclaration import TaxDeclaration
 from app.models.accrual import Accrual
 from app.schemas.declaration import TaxDeclarationWithAccrual
@@ -30,6 +32,8 @@ async def create_declaration(db: AsyncSession, data: dict) -> TaxDeclaration:
     )
     db.add(accrual)
     await db.commit()
+    # update debts for the taxpayer after new accrual
+    await calculate_debts(db, declaration.taxpayer_id)
     await db.refresh(declaration)
     return declaration
 
