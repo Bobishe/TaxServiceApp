@@ -23,11 +23,7 @@ async def create_payment(db: AsyncSession, data: dict) -> Payment:
     payment = Payment(**data)
     db.add(payment)
 
-    accrual.paid_amount += data["amount"]
-    if accrual.paid_amount == accrual.amount:
-        accrual.status = "оплачено"
-    else:
-        accrual.status = "оплачено частично"
+    # Accrual paid amount and status are updated by database trigger
 
     await db.commit()
     await db.refresh(payment)
