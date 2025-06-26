@@ -1,4 +1,3 @@
-from datetime import timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import func
@@ -6,8 +5,8 @@ from sqlalchemy import func
 from .debt import calculate_debts
 
 from app.models.taxdeclaration import TaxDeclaration
-from app.models.accrual import Accrual
 from app.schemas.declaration import TaxDeclarationWithAccrual
+from app.models.accrual import Accrual
 
 
 async def get_declaration(db: AsyncSession, declaration_id: int):
@@ -21,16 +20,7 @@ async def create_declaration(db: AsyncSession, data: dict) -> TaxDeclaration:
     declaration = TaxDeclaration(**data)
     db.add(declaration)
     await db.flush()
-
-    accrual = Accrual(
-        taxpayer_id=declaration.taxpayer_id,
-        tax_type_id=declaration.tax_type_id,
-        period=declaration.period,
-        amount=declaration.declared_tax_amount,
-        due_date=declaration.submission_date + timedelta(days=90),
-        declaration_id=declaration.declaration_id,
-    )
-    db.add(accrual)
+    # Accrual will be created automatically by database trigger
     await db.commit()
     # update debts for the taxpayer after new accrual
     await calculate_debts(db, declaration.taxpayer_id)
